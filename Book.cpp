@@ -5,22 +5,38 @@
 using namespace std;
 
 // Enum for Genre
-enum Genre { FICTION, NON_FICTION, PERIODICAL, BIOGRAPHY, CHILDREN };
+enum Genre
+{
+    FICTION,
+    NON_FICTION,
+    PERIODICAL,
+    BIOGRAPHY,
+    CHILDREN
+};
 
 // Function to convert genre to string
-string genreToString(Genre genre) {
-    switch (genre) {
-        case FICTION: return "Fiction";
-        case NON_FICTION: return "Non-Fiction";
-        case PERIODICAL: return "Periodical";
-        case BIOGRAPHY: return "Biography";
-        case CHILDREN: return "Children";
-        default: return "Unknown";
+string genreToString(Genre genre)
+{
+    switch (genre)
+    {
+    case FICTION:
+        return "Fiction";
+    case NON_FICTION:
+        return "Non-Fiction";
+    case PERIODICAL:
+        return "Periodical";
+    case BIOGRAPHY:
+        return "Biography";
+    case CHILDREN:
+        return "Children";
+    default:
+        return "Unknown";
     }
 }
 
 // Class for Book
-class Book {
+class Book
+{
 private:
     string ISBN;
     string title;
@@ -35,30 +51,33 @@ public:
         : ISBN(isbn), title(t), author(a), copyrightDate(date), checkedOut(false), genre(g) {}
 
     // Getter functions
-    string getISBN() const { return ISBN; }
-    string getTitle() const { return title; }
-    string getAuthor() const { return author; }
-    Genre getGenre() const { return genre; }
-    bool isCheckedOut() const { return checkedOut; }
+    string getISBN() { return ISBN; }
+    string getTitle() { return title; }
+    string getAuthor() { return author; }
+    Genre getGenre() { return genre; }
+    bool isCheckedOut() { return checkedOut; }
 
     // Check out and check in functions
     void checkOut() { checkedOut = true; }
     void checkIn() { checkedOut = false; }
 
     // Operator overloads
-    bool operator==(const Book& other) const { return ISBN == other.ISBN; }
-    bool operator!=(const Book& other) const { return !(*this == other); }
-    friend ostream& operator<<(ostream& os, const Book& book) {
-        os << "Title: " << book.title << "\n"
-           << "Author: " << book.author << "\n"
-           << "ISBN: " << book.ISBN << "\n"
-           << "Genre: " << genreToString(book.genre) << "\n";
+    bool operator==(const Book &other) const { return ISBN == other.ISBN; }
+    bool operator!=(const Book &other) const { return !(*this == other); }
+
+    friend ostream &operator<<(ostream &os, const Book &b)
+    {
+        os << "Title: " << b.title << "\n"
+           << "Author: " << b.author << "\n"
+           << "ISBN: " << b.ISBN << "\n"
+           << "Genre: " << genreToString(b.genre) << "\n";
         return os;
     }
 };
 
 // Class for Patron
-class Patron {
+class Patron
+{
 private:
     string userName;
     string cardNumber;
@@ -66,36 +85,38 @@ private:
 
 public:
     // Constructors
-    Patron(string name, string cardNum)
-        : userName(name), cardNumber(cardNum), owedFees(0) {}
+    Patron(string name, string cardNum, int fees = 0)
+        : userName(name), cardNumber(cardNum), owedFees(fees) {}
 
     // Getter functions
-    string getUserName() const { return userName; }
-    string getCardNumber() const { return cardNumber; }
-    int getOwedFees() const { return owedFees; }
+    string getUserName() { return userName; }
+    string getCardNumber() { return cardNumber; }
+    int getOwedFees() { return owedFees; }
 
     // Function to check if user owes fees
-    bool owesFees() const { return owedFees > 0; }
+    bool owesFees() { return owedFees > 0; }
 
     // Setter for fees
     void setFees(int fees) { owedFees = fees; }
 };
 
 // Class for Transaction
-class Transaction {
+class Transaction
+{
 private:
     Book book;
     Patron patron;
     string activity; // "check out" or "check in"
-    string date; // Date can be formatted as a string (e.g., "YYYY-MM-DD")
+    string date;
 
 public:
     // Constructor
-    Transaction(const Book& b, const Patron& p, const string& act, const string& d)
+    Transaction(Book b, Patron p, string act, string d)
         : book(b), patron(p), activity(act), date(d) {}
 
     // Function to display transaction details
-    void displayTransaction() const {
+    void displayTransaction()
+    {
         cout << "Transaction: " << activity << "\n"
              << "Book: " << book.getTitle() << "\n"
              << "Patron: " << patron.getUserName() << "\n"
@@ -104,7 +125,8 @@ public:
 };
 
 // Class for Library
-class Library {
+class Library
+{
 private:
     vector<Book> books;
     vector<Patron> patrons;
@@ -112,99 +134,105 @@ private:
 
 public:
     // Function to add a book to the library
-    void addBook(const Book& book) {
+    void addBook(Book book)
+    {
         books.push_back(book);
     }
 
     // Function to add a patron to the library
-    void addPatron(const Patron& patron) {
+    void addPatron(Patron patron)
+    {
         patrons.push_back(patron);
     }
 
     // Function to check out a book
-    void checkOutBook(const string& isbn, const string& cardNum) {
-        // Find the book
-        Book* bookPtr = nullptr;
-        for (auto& book : books) {
-            if (book.getISBN() == isbn) {
+    void checkOutBook(string isbn, string cardNum)
+    {
+        Book *bookPtr = nullptr;
+        for (auto &book : books)
+        {
+            if (book.getISBN() == isbn)
+            {
                 bookPtr = &book;
                 break;
             }
         }
 
-        // Find the patron
-        Patron* patronPtr = nullptr;
-        for (auto& patron : patrons) {
-            if (patron.getCardNumber() == cardNum) {
+        Patron *patronPtr = nullptr;
+        for (auto &patron : patrons)
+        {
+            if (patron.getCardNumber() == cardNum)
+            {
                 patronPtr = &patron;
                 break;
             }
         }
 
-        // Check for errors
-        if (!bookPtr) {
+        if (!bookPtr)
+        {
             cout << "Error: Book with ISBN " << isbn << " not found.\n";
             return;
         }
-        if (!patronPtr) {
+        if (!patronPtr)
+        {
             cout << "Error: Patron with card number " << cardNum << " not found.\n";
             return;
         }
-        if (patronPtr->owesFees()) {
+        if (patronPtr->owesFees())
+        {
             cout << "Error: Patron " << patronPtr->getUserName() << " owes fees.\n";
             return;
         }
-        if (bookPtr->isCheckedOut()) {
+        if (bookPtr->isCheckedOut())
+        {
             cout << "Error: Book is already checked out.\n";
             return;
         }
 
-        // Proceed with checkout
         bookPtr->checkOut();
-        
-        // For simplicity, use a placeholder for the date
-        string date = "YYYY-MM-DD"; // Replace with actual date retrieval if needed
-
+        string date = "YYYY-MM-DD"; // Placeholder for the actual date
         transactions.emplace_back(*bookPtr, *patronPtr, "check out", date);
         cout << "Book checked out successfully.\n";
     }
 
     // Function to check in a book
-    void checkInBook(const string& isbn) {
-        // Find the book
-        Book* bookPtr = nullptr;
-        for (auto& book : books) {
-            if (book.getISBN() == isbn) {
+    void checkInBook(string isbn)
+    {
+        Book *bookPtr = nullptr;
+        for (auto &book : books)
+        {
+            if (book.getISBN() == isbn)
+            {
                 bookPtr = &book;
                 break;
             }
         }
 
-        if (!bookPtr) {
+        if (!bookPtr)
+        {
             cout << "Error: Book with ISBN " << isbn << " not found.\n";
             return;
         }
-        if (!bookPtr->isCheckedOut()) {
+        if (!bookPtr->isCheckedOut())
+        {
             cout << "Error: Book is not checked out.\n";
             return;
         }
 
-        // Proceed with check-in
         bookPtr->checkIn();
-        
-        // For simplicity, use a placeholder for the date
-        string date = "YYYY-MM-DD"; // Replace with actual date retrieval if needed
-
-        // Log transaction
-        transactions.emplace_back(*bookPtr, Patron("", ""), "check in", date); // Patron info not necessary for check-in
+        string date = "YYYY-MM-DD"; // Placeholder for the actual date
+        transactions.emplace_back(*bookPtr, Patron("", ""), "check in", date);
         cout << "Book checked in successfully.\n";
     }
 
     // Function to display patrons who owe fees
-    void displayPatronsOwingFees() const {
+    void displayPatronsOwingFees()
+    {
         cout << "Patrons owing fees:\n";
-        for (const auto& patron : patrons) {
-            if (patron.owesFees()) {
+        for (auto &patron : patrons)
+        {
+            if (patron.owesFees())
+            {
                 cout << patron.getUserName() << " owes " << patron.getOwedFees() << " fees.\n";
             }
         }
@@ -212,7 +240,8 @@ public:
 };
 
 // Main function
-int main() {
+int main()
+{
     Library library;
 
     // Adding sample books

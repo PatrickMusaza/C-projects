@@ -6,7 +6,7 @@ const char PLAYER_X = 'X';
 const char PLAYER_O = 'O';
 
 // Template function to toggle between two values
-template <typename T>
+template <class T>
 T togglePlayer(T current, T option1, T option2) {
     return (current == option1) ? option2 : option1;
 }
@@ -34,7 +34,7 @@ bool checkWin(const char board[9], char player) {
         {0, 4, 8}, {2, 4, 6}             // Diagonals
     };
     
-    for (auto& pos : winningPositions) {
+    for (auto pos : winningPositions) {
         if (board[pos[0]] == player && board[pos[1]] == player && board[pos[2]] == player) {
             return true;
         }
