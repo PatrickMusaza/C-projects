@@ -41,29 +41,24 @@ private:
     string ISBN;
     string title;
     string author;
-    int copyrightDate;
+    string copyrightDate;
     bool checkedOut;
     Genre genre;
 
 public:
-    // Constructors
-    Book(string isbn, string t, string a, int date, Genre g)
+    Book(string isbn, string t, string a, string date, Genre g)
         : ISBN(isbn), title(t), author(a), copyrightDate(date), checkedOut(false), genre(g) {}
 
-    // Getter functions
     string getISBN() const { return ISBN; }
     string getTitle() const { return title; }
     string getAuthor() const { return author; }
     Genre getGenre() const { return genre; }
     bool isCheckedOut() const { return checkedOut; }
 
-    // Check out and check in functions
     void checkOut() { checkedOut = true; }
     void checkIn() { checkedOut = false; }
 
-    // Operator overloads
     bool operator==(const Book &other) const { return ISBN == other.ISBN; }
-    bool operator!=(const Book &other) const { return !(*this == other); }
 
     friend ostream &operator<<(ostream &os, const Book &book)
     {
@@ -84,19 +79,14 @@ private:
     int owedFees;
 
 public:
-    // Constructors
     Patron(string name, string cardNum)
         : userName(name), cardNumber(cardNum), owedFees(0) {}
 
-    // Getter functions
     string getUserName() const { return userName; }
     string getCardNumber() const { return cardNumber; }
     int getOwedFees() const { return owedFees; }
-
-    // Function to check if user owes fees
     bool owesFees() const { return owedFees > 0; }
 
-    // Setter for fees
     void setFees(int fees) { owedFees = fees; }
 };
 
@@ -107,14 +97,12 @@ private:
     Book book;
     Patron patron;
     string activity; // "check out" or "check in"
-    string date;     // Date can be formatted as a string (e.g., "YYYY-MM-DD")
+    string date;
 
 public:
-    // Constructor
     Transaction(Book b, Patron p, string act, string d)
         : book(b), patron(p), activity(act), date(d) {}
 
-    // Function to display transaction details
     void displayTransaction() const
     {
         cout << "Transaction: " << activity << "\n"
@@ -133,16 +121,24 @@ private:
     vector<Transaction> transactions;
 
 public:
-    // Function to add a book to the library
-    void addBook(Book book) { books.push_back(book); }
+    void addBook(Book book)
+    {
+        for (const auto &b : books)
+        {
+            if (b.getISBN() == book.getISBN())
+            {
+                cout << "Error: A book with this ISBN already exists.\n";
+                return;
+            }
+        }
+        books.push_back(book);
+        cout << "Book added successfully.\n";
+    }
 
-    // Function to add a patron to the library
     void addPatron(Patron patron) { patrons.push_back(patron); }
 
-    // Function to check out a book
     void checkOutBook(string isbn, string cardNum)
     {
-        // Find the book
         Book *bookPtr = nullptr;
         for (auto &book : books)
         {
@@ -153,7 +149,6 @@ public:
             }
         }
 
-        // Find the patron
         Patron *patronPtr = nullptr;
         for (auto &patron : patrons)
         {
@@ -164,7 +159,6 @@ public:
             }
         }
 
-        // Check for errors
         if (!bookPtr)
         {
             cout << "Error: Book with ISBN " << isbn << " not found.\n";
@@ -186,16 +180,13 @@ public:
             return;
         }
 
-        // Proceed with checkout
         bookPtr->checkOut();
         transactions.emplace_back(*bookPtr, *patronPtr, "check out", "YYYY-MM-DD");
         cout << "Book checked out successfully.\n";
     }
 
-    // Function to check in a book
     void checkInBook(string isbn)
     {
-        // Find the book
         Book *bookPtr = nullptr;
         for (auto &book : books)
         {
@@ -217,22 +208,43 @@ public:
             return;
         }
 
-        // Proceed with check-in
         bookPtr->checkIn();
         transactions.emplace_back(*bookPtr, Patron("", ""), "check in", "YYYY-MM-DD");
         cout << "Book checked in successfully.\n";
     }
 
-    // Function to display patrons who owe fees
+    void displayTransactions() const
+    {
+        if (transactions.empty())
+        {
+            cout << "No transactions to display.\n";
+        }
+        else
+        {
+            cout << "Transactions:\n";
+            for (const auto &transaction : transactions)
+            {
+                transaction.displayTransaction();
+                cout << endl;
+            }
+        }
+    }
+
     void displayPatronsOwingFees() const
     {
         cout << "Patrons owing fees:\n";
+        bool found = false; // Flag to check if any patron owes fees
         for (const auto &patron : patrons)
         {
             if (patron.owesFees())
             {
                 cout << patron.getUserName() << " owes " << patron.getOwedFees() << " fees.\n";
+                found = true;
             }
+        }
+        if (!found)
+        {
+            cout << "No patrons owe fees.\n";
         }
     }
 };
@@ -249,15 +261,16 @@ void dashboard(Library &library)
         cout << "3. Check Out a Book\n";
         cout << "4. Check In a Book\n";
         cout << "5. Display Patrons Who Owe Fees\n";
-        cout << "6. Exit\n";
+        cout << "6. Display Transactions\n";
+        cout << "7. Exit\n";
         cout << "Enter your choice: ";
         cin >> choice;
 
-        if (choice == 6)
+        if (choice == 7)
             break;
 
-        string isbn, title, author, cardNum;
-        int date, genre;
+        string isbn, title, author, cardNum, date;
+        int genre;
         switch (choice)
         {
         case 1:
@@ -268,21 +281,27 @@ void dashboard(Library &library)
             getline(cin, title);
             cout << "Enter Author: ";
             getline(cin, author);
-            cout << "Enter Copyright Date: ";
+            cout << "Enter Copyright Date as YYYY-MM-DD: ";
             cin >> date;
             cout << "Enter Genre (0: Fiction, 1: Non-Fiction, 2: Periodical, 3: Biography, 4: Children): ";
             cin >> genre;
-            library.addBook(Book(isbn, title, author, date, static_cast<Genre>(genre)));
-            cout << "Book added successfully.\n";
+            if (genre <= 0 || genre >= 4)
+            {
+                cout << "Error: Unknown genre choice.\n";
+            }
+            else
+            {
+                library.addBook(Book(isbn, title, author, date, static_cast<Genre>(genre)));
+            }
             break;
 
         case 2:
             cout << "Enter User Name: ";
             cin.ignore();
-            getline(cin, cardNum);
+            getline(cin, title);
             cout << "Enter Card Number: ";
             cin >> cardNum;
-            library.addPatron(Patron(cardNum, cardNum));
+            library.addPatron(Patron(title, cardNum));
             cout << "Patron added successfully.\n";
             break;
 
@@ -302,6 +321,10 @@ void dashboard(Library &library)
 
         case 5:
             library.displayPatronsOwingFees();
+            break;
+
+        case 6:
+            library.displayTransactions();
             break;
 
         default:
