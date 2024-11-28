@@ -66,6 +66,13 @@ void playGame() {
         cout << "Player " << currentPlayer << ", enter a cell number (1-9): ";
         cin >> move;
         move -= 1; // Adjust for 0-based index
+
+        if(cin.fail()){
+            cin.clear();
+            cin.ignore(1000,'¥n');
+            cout<<"Invalid input. Please enter a number between 1 and 9";
+            continue;
+        } 
         
         // Validate move
         if (!isValidMove(board, move)) {
