@@ -69,7 +69,7 @@ void playGame() {
 
         if(cin.fail()){
             cin.clear();
-            cin.ignore(1000,'¥n');
+            cin.ignore(1000,'\n');
             cout<<"Invalid input. Please enter a number between 1 and 9";
             continue;
         } 
